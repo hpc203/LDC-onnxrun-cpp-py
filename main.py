@@ -48,6 +48,17 @@ if __name__ == '__main__':
     srcimg = cv2.imread(args.imgpath)
     average_image, fuse_image = mynet.detect(srcimg)
 
+    _, threshold_image = cv2.threshold(average_image, 0, 255, cv2.THRESH_BINARY_INV + cv2.THRESH_OTSU)
+    
+    skeletonize_image_zhangsuen = cv2.ximgproc.thinning(threshold_image, thinningType=cv2.ximgproc.THINNING_ZHANGSUEN)
+    skeletonize_image_zhangsuen = cv2.bitwise_not(skeletonize_image_zhangsuen)
+
+    skeletonize_image_guohall = cv2.ximgproc.thinning(threshold_image, thinningType=cv2.ximgproc.THINNING_GUOHALL)
+    skeletonize_image_guohall = cv2.bitwise_not(skeletonize_image_guohall)
+
+    dstimg = np.hstack((average_image, fuse_image, threshold_image, skeletonize_image_zhangsuen, skeletonize_image_guohall))
+    cv2.imwrite('result.jpg', dstimg)
+    
     cv2.namedWindow('srcimg', cv2.WINDOW_NORMAL)
     cv2.imshow('srcimg', srcimg)
     cv2.namedWindow('LDC Output(Average)', cv2.WINDOW_NORMAL)
